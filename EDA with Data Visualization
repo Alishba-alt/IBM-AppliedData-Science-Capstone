@@ -1,0 +1,300 @@
+                                                      SpaceX Falcon 9 First Stage Landing Prediction
+
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset into a Pandas DataFrame
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Display a summary of the dataset
+print(df.info())
+print(df.head())
+
+# Scatter plot for FlightNumber vs Launch Outcome
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='FlightNumber', y='Class', data=df, hue='Class', palette='viridis')
+plt.xlabel('Flight Number')
+plt.ylabel('Launch Outcome (0: Failure, 1: Success)')
+plt.title('Relationship Between Flight Number and Launch Outcome')
+plt.legend(title="Outcome", loc="upper left")
+plt.show()
+
+# Scatter plot for PayloadMass vs Launch Outcome
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='PayloadMass', y='Class', data=df, hue='Class', palette='coolwarm')
+plt.xlabel('Payload Mass (kg)')
+plt.ylabel('Launch Outcome (0: Failure, 1: Success)')
+plt.title('Relationship Between Payload Mass and Launch Outcome')
+plt.legend(title="Outcome", loc="upper left")
+plt.show()
+
+# Joint plot for FlightNumber and PayloadMass against Launch Outcome
+sns.jointplot(x='FlightNumber', y='PayloadMass', data=df, hue='Class', kind='scatter', height=8, palette='dark')
+plt.suptitle('Joint Relationship Between Flight Number, Payload Mass, and Launch Outcome', y=1.02)
+plt.show()
+  Column          Non-Null Count  Dtype  
+---  ------          --------------  -----  
+ 0   FlightNumber    90 non-null     int64  
+ 1   Date            90 non-null     object 
+ 2   BoosterVersion  90 non-null     object 
+ 3   PayloadMass     90 non-null     float64
+ 4   Orbit           90 non-null     object 
+ 5   LaunchSite      90 non-null     object 
+ 6   Outcome         90 non-null     object 
+ 7   Flights         90 non-null     int64  
+ 8   GridFins        90 non-null     bool   
+ 9   Reused          90 non-null     bool   
+ 10  Legs            90 non-null     bool   
+ 11  LandingPad      64 non-null     object
+ 12  Block           90 non-null     float64
+ 13  ReusedCount     90 non-null     int64
+ 14  Serial          90 non-null     object
+ 15  Longitude       90 non-null     float64
+ 16  Latitude        90 non-null     float64
+ 17  Class           90 non-null     int64
+dtypes: bool(3), float64(4), int64(4), object(7)
+memory usage: 10.9+ KB
+ 14  Serial          90 non-null     object
+ 15  Longitude       90 non-null     float64
+ 16  Latitude        90 non-null     float64
+ 17  Class           90 non-null     int64
+dtypes: bool(3), float64(4), int64(4), object(7)
+memory usage: 10.9+ KB
+ 15  Longitude       90 non-null     float64
+ 16  Latitude        90 non-null     float64
+ 17  Class           90 non-null     int64
+dtypes: bool(3), float64(4), int64(4), object(7)
+memory usage: 10.9+ KB
+ 17  Class           90 non-null     int64
+dtypes: bool(3), float64(4), int64(4), object(7)
+memory usage: 10.9+ KB
+dtypes: bool(3), float64(4), int64(4), object(7)
+memory usage: 10.9+ KB
+None
+   FlightNumber        Date BoosterVersion  PayloadMass Orbit    LaunchSite  ... Block  ReusedCount  Serial   Longitude   Latitude Class      
+0             1  2010-06-04       Falcon 9  6104.959412   LEO  CCAFS SLC 40  ...   1.0            0   B0003  -80.577366  28.561857     0      
+1             2  2012-05-22       Falcon 9   525.000000   LEO  CCAFS SLC 40  ...   1.0            0   B0005  -80.577366  28.561857     0      
+2             3  2013-03-01       Falcon 9   677.000000   ISS  CCAFS SLC 40  ...   1.0            0   B0007  -80.577366  28.561857     0      
+3             4  2013-09-29       Falcon 9   500.000000    PO   VAFB SLC 4E  ...   1.0            0   B1003 -120.610829  34.632093     0      
+4             5  2013-12-03       Falcon 9  3170.000000   GTO  CCAFS SLC 40  ...   1.0            0   B1004  -80.577366  28.561857     0      
+1             2  2012-05-22       Falcon 9   525.000000   LEO  CCAFS SLC 40  ...   1.0            0   B0005  -80.577366  28.561857     0      
+2             3  2013-03-01       Falcon 9   677.000000   ISS  CCAFS SLC 40  ...   1.0            0   B0007  -80.577366  28.561857     0      
+3             4  2013-09-29       Falcon 9   500.000000    PO   VAFB SLC 4E  ...   1.0            0   B1003 -120.610829  34.632093     0      
+4             5  2013-12-03       Falcon 9  3170.000000   GTO  CCAFS SLC 40  ...   1.0            0   B1004  -80.577366  28.561857     0      
+2             3  2013-03-01       Falcon 9   677.000000   ISS  CCAFS SLC 40  ...   1.0            0   B0007  -80.577366  28.561857     0      
+3             4  2013-09-29       Falcon 9   500.000000    PO   VAFB SLC 4E  ...   1.0            0   B1003 -120.610829  34.632093     0      
+4             5  2013-12-03       Falcon 9  3170.000000   GTO  CCAFS SLC 40  ...   1.0            0   B1004  -80.577366  28.561857     0      
+3             4  2013-09-29       Falcon 9   500.000000    PO   VAFB SLC 4E  ...   1.0            0   B1003 -120.610829  34.632093     0      
+4             5  2013-12-03       Falcon 9  3170.000000   GTO  CCAFS SLC 40  ...   1.0            0   B1004  -80.577366  28.561857     0      
+4             5  2013-12-03       Falcon 9  3170.000000   GTO  CCAFS SLC 40  ...   1.0            0   B1004  -80.577366  28.561857     0      
+
+                     TASK 1: Visualize the relationship between Flight Number and Launch Site
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Create a bar plot showing the relationship between Flight Number and Launch Site
+plt.figure(figsize=(12, 6))
+sns.barplot(x='LaunchSite', y='FlightNumber', data=df, ci=None, palette='muted')
+
+# Customize the plot
+plt.xlabel('Launch Site')
+plt.ylabel('Flight Number')
+plt.title('Relationship Between Flight Number and Launch Site')
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+                        TASK 2: Visualize the relationship between Payload and Launch Site
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Create a box plot to visualize PayloadMass by Launch Site
+plt.figure(figsize=(12, 6))
+sns.boxplot(x='LaunchSite', y='PayloadMass', data=df, palette='coolwarm')
+
+# Customize the plot
+plt.xlabel('Launch Site')
+plt.ylabel('Payload Mass (kg)')
+plt.title('Relationship Between Payload Mass and Launch Site')
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+                   TASK 3: Visualize the relationship between success rate of each orbit type
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Calculate success rate for each orbit type
+orbit_success_rate = df.groupby('Orbit')['Class'].mean()
+
+# Reset index for easier plotting
+orbit_success_rate = orbit_success_rate.reset_index()
+
+# Create a bar plot for success rate per orbit type
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Orbit', y='Class', data=orbit_success_rate, palette='Blues_d')
+
+# Customize the plot
+plt.xlabel('Orbit Type')
+plt.ylabel('Success Rate')
+plt.title('Success Rate by Orbit Type')
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+              TASK 4: Visualize the relationship between FlightNumber and Orbit type
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Create a scatter plot to visualize the relationship between FlightNumber and Orbit
+plt.figure(figsize=(12, 6))
+sns.scatterplot(x='FlightNumber', y='Orbit', data=df, hue='Class', palette='coolwarm', s=100)
+
+# Customize the plot
+plt.xlabel('Flight Number')
+plt.ylabel('Orbit Type')
+plt.title('Relationship Between Flight Number and Orbit Type')
+plt.legend(title="Class (0: Failure, 1: Success)", loc="upper right")
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+                  TASK 5: Visualize the relationship between Payload and Orbit type
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Create a scatter plot to visualize Payload vs Orbit type
+plt.figure(figsize=(12, 6))
+sns.scatterplot(x='PayloadMass', y='Orbit', data=df, hue='Class', palette='viridis', s=100)
+
+# Customize the plot
+plt.xlabel('Payload Mass (kg)')
+plt.ylabel('Orbit Type')
+plt.title('Relationship Between Payload Mass and Orbit Type')
+plt.legend(title="Class (0: Failure, 1: Success)", loc="upper right")
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+       TASK 6: Visualize the launch success yearly trend
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Convert the 'Date' column to datetime format
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Extract the year from the 'Date' column
+df['Year'] = df['Date'].dt.year
+
+# Calculate the success rate for each year
+yearly_success_rate = df.groupby('Year')['Class'].mean().reset_index()
+
+# Create a line plot to show the yearly success trend
+plt.figure(figsize=(10, 6))
+sns.lineplot(x='Year', y='Class', data=yearly_success_rate, marker='o', color='blue')
+
+# Customize the plot
+plt.xlabel('Year')
+plt.ylabel('Success Rate')
+plt.title('Yearly Launch Success Trend')
+plt.grid(True)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+          TASK 7: Create dummy variables to categorical columns
+import pandas as pd
+
+# Load the dataset
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Select categorical columns
+categorical_columns = df.select_dtypes(include=['object']).columns
+
+# Create dummy variables for each categorical column
+df_dummies = pd.get_dummies(df, columns=categorical_columns)
+
+# Display the first few rows of the modified DataFrame
+print(df_dummies.head())
+
+FlightNumber  PayloadMass  Flights  GridFins  Reused  ...  Serial_B1056  Serial_B1058  Serial_B1059  Serial_B1060  Serial_B1062
+0             1  6104.959412        1     False   False  ...         False         False         False         False         False
+1             2   525.000000        1     False   False  ...         False         False         False         False         False
+2             3   677.000000        1     False   False  ...         False         False         False         False         False
+3             4   500.000000        1     False   False  ...         False         False         False         False         False
+4             5  3170.000000        1     False   False  ...         False         False         False         False         False
+
+                        TASK 8: Cast all numeric columns to float64
+import pandas as pd
+
+# Load the dataset
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/datasets/dataset_part_2.csv")
+
+# Convert all numeric columns to float64
+numeric_columns = df.select_dtypes(include=['int64', 'float64']).columns  # Identify numeric columns
+df[numeric_columns] = df[numeric_columns].astype('float64')  # Cast to float64
+
+# Display the data types to confirm the change
+print(df.dtypes)
+
+FlightNumber      float64
+Date               object
+BoosterVersion     object
+PayloadMass       float64
+Orbit              object
+LaunchSite         object
+Outcome            object
+Flights           float64
+GridFins             bool
+Reused               bool
+Legs                 bool
+LandingPad         object
+Block             float64
+ReusedCount       float64
+Serial             object
+Longitude         float64
+Latitude          float64
+Class             float64
+dtype: object
+
