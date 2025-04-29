@@ -1,0 +1,249 @@
+import requests
+
+# API endpoint
+url = "https://api.spacexdata.com/v4/launches"
+
+# Make the GET request
+response = requests.get(url)
+
+# Check for a successful response
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data. Status code:", response.status_code) 
+
+Data fetched successfully!
+
+import pandas as pd
+import requests
+
+# Fetch data from SpaceX API
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+data = response.json()  # Now 'data' is defined
+
+# Convert data to a DataFrame
+df = pd.DataFrame(data)
+
+# Inspect the data
+print(df.info())
+print(df.head())
+
+# Keep only relevant columns
+relevant_columns = ['name', 'date_utc', 'success', 'rocket']
+df = df[relevant_columns]
+
+# Parse and format the date
+df['date_utc'] = pd.to_datetime(df['date_utc'])
+
+# Handle missing values
+df = df.dropna()
+
+# Final look at the cleaned data
+print(df.head())
+
+RangeIndex: 205 entries, 0 to 204
+Data columns (total 27 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   fairings               169 non-null    object 
+ 1   links                  205 non-null    object 
+ 2   static_fire_date_utc   121 non-null    object 
+ 3   static_fire_date_unix  121 non-null    float64
+ 4   net                    205 non-null    bool   
+ 5   window                 117 non-null    float64
+ 6   rocket                 205 non-null    object 
+ 7   success                186 non-null    object 
+ 8   failures               205 non-null    object 
+ 9   details                134 non-null    object 
+ 10  crew                   205 non-null    object 
+ 11  ships                  205 non-null    object 
+ 12  capsules               205 non-null    object 
+ 13  payloads               205 non-null    object 
+ 14  launchpad              205 non-null    object 
+ 15  flight_number          205 non-null    int64  
+ 16  name                   205 non-null    object 
+ 17  date_utc               205 non-null    object 
+ 18  date_unix              205 non-null    int64  
+ 19  date_local             205 non-null    object 
+ 20  date_precision         205 non-null    object 
+ 21  upcoming               205 non-null    bool   
+ 22  cores                  205 non-null    object 
+ 23  auto_update            205 non-null    bool   
+ 24  tbd                    205 non-null    bool   
+ 25  launch_library_id      72 non-null     object 
+ 26  id                     205 non-null    object 
+dtypes: bool(4), float64(2), int64(2), object(19)
+memory usage: 37.8+ KB
+None
+                                            fairings  ...                        id
+0  {'reused': False, 'recovery_attempt': False, '...  ...  5eb87cd9ffd86e000604b32a
+1  {'reused': False, 'recovery_attempt': False, '...  ...  5eb87cdaffd86e000604b32b
+2  {'reused': False, 'recovery_attempt': False, '...  ...  5eb87cdbffd86e000604b32c
+3  {'reused': False, 'recovery_attempt': False, '...  ...  5eb87cdbffd86e000604b32d
+4  {'reused': False, 'recovery_attempt': False, '...  ...  5eb87cdcffd86e000604b32e
+
+[5 rows x 27 columns]
+          name                  date_utc success                    rocket
+0    FalconSat 2006-03-24 22:30:00+00:00   False  5e9d0d95eda69955f709d1eb
+1      DemoSat 2007-03-21 01:10:00+00:00   False  5e9d0d95eda69955f709d1eb
+2  Trailblazer 2008-08-03 03:34:00+00:00   False  5e9d0d95eda69955f709d1eb
+3       RatSat 2008-09-28 23:15:00+00:00    True  5e9d0d95eda69955f709d1eb
+4     RazakSat 2009-07-13 03:35:00+00:00    True  5e9d0d95eda69955f709d1eb
+
+
+import pandas as pd
+import requests
+
+# Fetch data from SpaceX API
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+data = response.json()
+
+# Convert data to a DataFrame
+df = pd.DataFrame(data)
+
+# Keep only relevant columns
+relevant_columns = ['name', 'date_utc', 'success', 'rocket']
+df = df[relevant_columns]
+
+# Parse and format the date
+df['date_utc'] = pd.to_datetime(df['date_utc'])
+
+# Handle missing values
+df = df.dropna()
+
+# Now, fetch rocket information to get rocket names
+rocket_url = "https://api.spacexdata.com/v4/rockets"
+rocket_response = requests.get(rocket_url)
+rockets_data = rocket_response.json()
+
+# Create a mapping from rocket id to rocket name
+rocket_mapping = {rocket['id']: rocket['name'] for rocket in rockets_data}
+
+# Replace rocket IDs with rocket names
+df['rocket'] = df['rocket'].map(rocket_mapping)
+
+# Now, filter for Falcon 9 launches
+df_falcon9 = df[df['rocket'] == 'Falcon 9']
+
+# Print the filtered DataFrame
+print(df_falcon9)
+
+                                 name  ...    rocket
+5                              Falcon 9 Test Flight  ...  Falcon 9
+6                                            COTS 1  ...  Falcon 9
+7                                            COTS 2  ...  Falcon 9
+8                                             CRS-1  ...  Falcon 9
+9                                             CRS-2  ...  Falcon 9
+..                                              ...  ...       ...
+182  Starlink 4-20 (v1.5) & Sherpa LTC-2/Varuna-TDM  ...  Falcon 9
+183             Starlink 4-2 (v1.5) & Blue Walker 3  ...  Falcon 9
+184                            Starlink 4-34 (v1.5)  ...  Falcon 9
+185                            Starlink 4-35 (v1.5)  ...  Falcon 9
+186                                          Crew-5  ...  Falcon 9
+
+# Step 1: Import required libraries
+import pandas as pd
+import requests
+import matplotlib.pyplot as plt
+
+# Step 2: Fetch launch data from SpaceX API
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+data = response.json()
+
+# Step 3: Create DataFrame from the fetched data
+df = pd.DataFrame(data)
+
+# Step 4: Keep only relevant columns
+relevant_columns = ['name', 'date_utc', 'success', 'rocket']
+df = df[relevant_columns]
+
+# Step 5: Parse and format the date
+df['date_utc'] = pd.to_datetime(df['date_utc'])
+
+# Step 6: Handle missing values
+df = df.dropna()
+
+# Step 7: Fetch rocket data to map rocket IDs to rocket names
+rocket_url = "https://api.spacexdata.com/v4/rockets"
+rocket_response = requests.get(rocket_url)
+rockets_data = rocket_response.json()
+
+# Step 8: Create a mapping of rocket IDs to rocket names
+rocket_mapping = {rocket['id']: rocket['name'] for rocket in rockets_data}
+
+# Step 9: Map rocket IDs to rocket names
+df['rocket'] = df['rocket'].map(rocket_mapping)
+
+# Step 10: Filter only Falcon 9 launches
+df_falcon9 = df[df['rocket'] == 'Falcon 9']
+
+# Step 11: Convert 'success' column to numeric values (True -> 1, False -> 0)
+df_falcon9['success'] = df_falcon9['success'].astype(int)
+
+# Step 12: Set 'date_utc' as the index for better plotting
+df_falcon9.set_index('date_utc', inplace=True)
+
+# Step 13: Plot the trend of Falcon 9 launch success over time
+df_falcon9['success'].resample('M').sum().plot()
+
+plt.title("Falcon 9 Launch Success Over Time")
+plt.xlabel("Launch Date")
+plt.ylabel("Number of Successful Launches")
+plt.grid(True)
+plt.show()
+
+import requests
+import pandas as pd
+
+# Step 1: Make a GET request to the SpaceX API
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+# Step 2: Check if the request was successful
+if response.status_code == 200:
+    data = response.json()  # Convert JSON response to Python object
+    
+    # Step 3: Create a DataFrame
+    launches_df = pd.json_normalize(data)  # Normalize nested data for easy DataFrame creation
+    
+    # Step 4: Check DataFrame structure
+    print(launches_df.head())  # View first few rows to identify relevant columns
+    
+    # Step 5: Filter DataFrame for Falcon 9 launches
+    if 'rocket' in launches_df.columns:
+        rockets_url = "https://api.spacexdata.com/v4/rockets"
+        rockets_response = requests.get(rockets_url)
+
+        if rockets_response.status_code == 200:
+            rockets_data = rockets_response.json()
+            rockets_df = pd.DataFrame(rockets_data)
+            rocket_name_mapping = rockets_df.set_index('id')['name'].to_dict()
+            
+            # Map rocket IDs to rocket names
+            launches_df['rocket_name'] = launches_df['rocket'].map(rocket_name_mapping)
+            
+            # Filter for Falcon 9 launches
+            falcon9_df = launches_df[launches_df['rocket_name'] == 'Falcon 9']
+            print(falcon9_df.head())
+        else:
+            print("Failed to retrieve rocket data:", rockets_response.status_code)
+    else:
+        print("'rocket' column not found in launches data. Please inspect the data structure.")
+else:
+    print("Failed to retrieve launches data:", response.status_code)
+
+
+ee the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_falcon9['success'] = df_falcon9['success'].astype(int)
+
+# Drop rows with missing values
+df_cleaned = df.dropna()
+
+# Drop columns with missing values
+df_cleaned = df.dropna(axis=1)
+
+
