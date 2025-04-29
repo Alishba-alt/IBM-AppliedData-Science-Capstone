@@ -1,0 +1,168 @@
+               Space X Falcon 9 First Stage Landing Prediction
+
+import pandas as pd
+
+# Define data as a dictionary
+data = {
+    "FlightNumber": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "Date": ["2010-06-04", "2012-05-22", "2013-03-01", "2013-09-29", "2013-12-03", 
+             "2014-01-06", "2014-04-18", "2014-07-14", "2014-08-05", "2014-09-07"],
+    "BoosterVersion": ["Falcon 9"] * 10,
+    "PayloadMass": [6104.959412, 525.000000, 677.000000, 500.000000, 3170.000000, 
+                    3325.000000, 2296.000000, 1316.000000, 4535.000000, 4428.000000],
+    "Orbit": ["LEO", "LEO", "ISS", "PO", "GTO", "GTO", "ISS", "LEO", "GTO", "GTO"],
+    "LaunchSite": ["CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "VAFB SLC 4E", "CCAFS SLC 40", 
+                   "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40"],
+    "Outcome": ["None None", "None None", "None None", "False Ocean", "None None", 
+                "None None", "True Ocean", "True Ocean", "None None", "None None"],
+    "Flights": [1] * 10,
+    "GridFins": [False] * 10,
+    "Reused": [False] * 10,
+    "Legs": [False, False, False, False, False, False, True, True, False, False],
+    "LandingPad": [float('nan')] * 10,
+    "Block": [1.0] * 10,
+    "ReusedCount": [0] * 10,
+    "Serial": ["B0003", "B0005", "B0007", "B1003", "B1004", "B1005", "B1006", "B1007", "B1008", "B1011"],
+    "Longitude": [-80.577366, -80.577366, -80.577366, -120.610829, -80.577366, 
+                  -80.577366, -80.577366, -80.577366, -80.577366, -80.577366],
+    "Latitude": [28.561857, 28.561857, 28.561857, 34.632093, 28.561857, 
+                 28.561857, 28.561857, 28.561857, 28.561857, 28.561857]
+}
+
+# Create the DataFrame
+df = pd.DataFrame(data)
+
+# Display the DataFrame
+print(df)
+
+   FlightNumber        Date BoosterVersion  ...  Serial   Longitude   Latitude
+0             1  2010-06-04       Falcon 9  ...   B0003  -80.577366  28.561857
+1             2  2012-05-22       Falcon 9  ...   B0005  -80.577366  28.561857
+2             3  2013-03-01       Falcon 9  ...   B0007  -80.577366  28.561857
+3             4  2013-09-29       Falcon 9  ...   B1003 -120.610829  34.632093
+4             5  2013-12-03       Falcon 9  ...   B1004  -80.577366  28.561857
+5             6  2014-01-06       Falcon 9  ...   B1005  -80.577366  28.561857
+6             7  2014-04-18       Falcon 9  ...   B1006  -80.577366  28.561857
+7             8  2014-07-14       Falcon 9  ...   B1007  -80.577366  28.561857
+8             9  2014-08-05       Falcon 9  ...   B1008  -80.577366  28.561857
+9            10  2014-09-07       Falcon 9  ...   B1011  -80.577366  28.561857
+
+           TASK 1: Calculate the number of launches on each site
+# Apply value_counts() on column LaunchSite
+df['LaunchSite'].value_counts()
+
+CCAFS SLC 40    55
+KSC LC 39A      22
+VAFB SLC 4E     13
+Name: LaunchSite, dtype: int6
+
+                        TASK 2: Calculate the number and occurrence of each orbit
+
+# Apply value_counts on Orbit column
+df['Orbit'].value_counts()
+GTO      27
+ISS      21
+VLEO     14
+PO        9
+LEO       7
+SSO       5
+MEO       3
+SO        1
+ES-L1     1
+GEO       1
+HEO       1
+Name: Orbit, dtype: int64
+
+              TASK 3: Calculate the number and occurence of mission outcome per orbit type
+
+import pandas as pd
+
+# Define your data as a dictionary
+data = {
+    "FlightNumber": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "Date": ["2010-06-04", "2012-05-22", "2013-03-01", "2013-09-29", "2013-12-03", 
+             "2014-01-06", "2014-04-18", "2014-07-14", "2014-08-05", "2014-09-07"],
+    "BoosterVersion": ["Falcon 9"] * 10,
+    "PayloadMass": [6104.959412, 525.000000, 677.000000, 500.000000, 3170.000000, 
+                    3325.000000, 2296.000000, 1316.000000, 4535.000000, 4428.000000],
+    "Orbit": ["LEO", "LEO", "ISS", "PO", "GTO", "GTO", "ISS", "LEO", "GTO", "GTO"],
+    "LaunchSite": ["CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "VAFB SLC 4E", "CCAFS SLC 40", 
+                   "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40"],
+    "Outcome": ["None None", "None None", "None None", "False Ocean", "None None", 
+                "None None", "True Ocean", "True Ocean", "None None", "None None"],
+    "Flights": [1] * 10,
+    "GridFins": [False] * 10,
+    "Reused": [False] * 10,
+    "Legs": [False, False, False, False, False, False, True, True, False, False],
+    "LandingPad": [float('nan')] * 10,
+    "Block": [1.0] * 10,
+    "ReusedCount": [0] * 10,
+    "Serial": ["B0003", "B0005", "B0007", "B1003", "B1004", "B1005", "B1006", "B1007", "B1008", "B1011"],
+    "Longitude": [-80.577366, -80.577366, -80.577366, -120.610829, -80.577366, 
+                  -80.577366, -80.577366, -80.577366, -80.577366, -80.577366],
+    "Latitude": [28.561857, 28.561857, 28.561857, 34.632093, 28.561857, 
+                 28.561857, 28.561857, 28.561857, 28.561857, 28.561857]
+}
+
+# Create the DataFrame
+df = pd.DataFrame(data)
+
+
+   Orbit      Outcome         Count
+0    GTO    None None        <value>
+1    ISS    True Ocean       <value>
+2    LEO    None None        <value>
+3    LEO    True Ocean       <value>
+4     PO   False Ocean       <value>
+ 
+                       TASK 4: Create a landing outcome label from Outcome column
+
+import pandas as pd
+
+# Define your data as a dictionary
+data = {
+    "FlightNumber": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "Date": ["2010-06-04", "2012-05-22", "2013-03-01", "2013-09-29", "2013-12-03", 
+             "2014-01-06", "2014-04-18", "2014-07-14", "2014-08-05", "2014-09-07"],
+    "BoosterVersion": ["Falcon 9"] * 10,
+    "PayloadMass": [6104.959412, 525.000000, 677.000000, 500.000000, 3170.000000, 
+                    3325.000000, 2296.000000, 1316.000000, 4535.000000, 4428.000000],
+    "Orbit": ["LEO", "LEO", "ISS", "PO", "GTO", "GTO", "ISS", "LEO", "GTO", "GTO"],
+    "LaunchSite": ["CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "VAFB SLC 4E", "CCAFS SLC 40", 
+                   "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40", "CCAFS SLC 40"],
+    "Outcome": ["None None", "None None", "None None", "False Ocean", "None None", 
+                "None None", "True Ocean", "True Ocean", "None None", "None None"],
+    "Flights": [1] * 10,
+    "GridFins": [False] * 10,
+    "Reused": [False] * 10,
+    "Legs": [False, False, False, False, False, False, True, True, False, False],
+    "LandingPad": [float('nan')] * 10,
+    "Block": [1.0] * 10,
+    "ReusedCount": [0] * 10,
+    "Serial": ["B0003", "B0005", "B0007", "B1003", "B1004", "B1005", "B1006", "B1007", "B1008", "B1011"],
+    "Longitude": [-80.577366, -80.577366, -80.577366, -120.610829, -80.577366, 
+                  -80.577366, -80.577366, -80.577366, -80.577366, -80.577366],
+    "Latitude": [28.561857, 28.561857, 28.561857, 34.632093, 28.561857, 
+                 28.561857, 28.561857, 28.561857, 28.561857, 28.561857]
+}
+
+# Create the DataFrame
+df = pd.DataFrame(data)
+
+# Now you can proceed with your operations!
+
+
+  Orbit       Outcome        LandingOutcomeLabel
+0   LEO     None None              No Attempt
+1   LEO     None None              No Attempt
+2   ISS     None None              No Attempt
+3    PO   False Ocean                   Failed
+4   GTO     None None              No Attempt
+5   GTO     None None              No Attempt
+6   ISS    True Ocean              Successful
+7   LEO    True Ocean              Successful
+8   GTO     None None              No Attempt
+9   GTO     None None              No Attempt
+
+
+
