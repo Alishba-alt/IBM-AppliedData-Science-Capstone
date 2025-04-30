@@ -1,0 +1,571 @@
+                                             Store the dataset in database table
+
+import requests
+import sqlite3
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Connect to SQLite database
+connection = sqlite3.connect("spacex.db")
+cursor = connection.cursor()
+
+# Step 3: Create database table if it doesn't exist
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS launches (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    date_utc TEXT,
+    success BOOLEAN,
+    rocket TEXT
+)
+""")
+
+# Step 4: Insert data into the table
+for launch in data:
+    cursor.execute("""
+    INSERT OR IGNORE INTO launches (id, name, date_utc, success, rocket)
+    VALUES (?, ?, ?, ?, ?)
+    """, (
+        launch.get("id"),
+        launch.get("name"),
+        launch.get("date_utc"),
+        launch.get("success"),
+        launch.get("rocket")
+    ))
+
+# Commit changes and close the connection
+connection.commit()
+print("Data has been inserted into the database.")
+connection.close()
+Data fetched successfully!
+Data has been inserted into the database.
+
+                      Task 1:     Display the names of the unique launch sites in the space mission
+
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Extract and Display Unique Launch Site Names
+launch_sites = set()  # Use a set to ensure uniqueness
+for launch in data:
+    launchpad_id = launch.get("launchpad")
+    if launchpad_id:
+        launch_sites.add(launchpad_id)  # Add launchpad IDs
+
+# Step 3: Optional - Resolve Launchpad IDs to Names (Additional API Call)
+launch_site_names = set()  # Store unique names of launch sites
+url_launchpads = "https://api.spacexdata.com/v4/launchpads"
+response_launchpads = requests.get(url_launchpads)
+
+if response_launchpads.status_code == 200:
+    launchpads = response_launchpads.json()
+    for launchpad in launchpads:
+        if launchpad.get("id") in launch_sites:
+            launch_site_names.add(launchpad.get("name"))
+
+# Display the names of unique launch sites
+print("Unique Launch Sites:")
+for site in launch_site_names:
+    print(site)
+
+
+Data fetched successfully!
+Unique Launch Sites:
+KSC LC 39A     
+CCSFS SLC 40   
+VAFB SLC 4E    
+Kwajalein Atoll
+
+                                         Task 2 :  Display 5 records where launch sites begin with the string 'CCA'
+
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Filter Launch Sites Starting with 'CCA'
+filtered_launches = []
+for launch in data:
+    launchpad_id = launch.get("launchpad")
+    if launchpad_id and launchpad_id.startswith("CCA"):
+        filtered_launches.append(launch)
+
+# Step 3: Display 5 Records
+print("Launches with sites starting with 'CCA':")
+for launch in filtered_launches[:5]:  # Limit to 5 records
+    print(f"Name: {launch.get('name')}, Launchpad ID: {launch.get('launchpad')}")
+
+
+Data fetched successfully!
+
+                               Task 3
+            Display the total payload mass carried by boosters launched by NASA (CRS)
+
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Filter NASA CRS launches and calculate total payload mass
+total_payload_mass = 0
+for launch in data:
+    if "NASA" in launch.get("name", "") and "CRS" in launch.get("name", ""):
+        payloads = launch.get("payloads", [])
+        for payload_id in payloads:
+            # Fetch payload details
+            payload_url = f"https://api.spacexdata.com/v4/payloads/{payload_id}"
+            payload_response = requests.get(payload_url)
+            if payload_response.status_code == 200:
+                payload_data = payload_response.json()
+                total_payload_mass += payload_data.get("mass_kg", 0)
+
+print(f"Total Payload Mass for NASA CRS launches: {total_payload_mass} kg")
+
+
+Data fetched successfully!
+Total Payload Mass for NASA CRS launches: 0 kg
+
+                             Task 4
+             Display average payload mass carried by booster version F9 v1.1
+
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Filter launches with booster version 'F9 v1.1' and calculate average payload mass
+total_payload_mass = 0
+count = 0
+
+for launch in data:
+    if launch.get("rocket") and "F9 v1.1" in launch.get("rocket"):
+        payloads = launch.get("payloads", [])
+        for payload_id in payloads:
+            # Fetch payload details
+            payload_url = f"https://api.spacexdata.com/v4/payloads/{payload_id}"
+            payload_response = requests.get(payload_url)
+            if payload_response.status_code == 200:
+                payload_data = payload_response.json()
+                mass = payload_data.get("mass_kg", 0)
+                if mass:  # Only consider valid payload masses
+                    total_payload_mass += mass
+                    count += 1
+
+# Step 3: Calculate and display average payload mass
+if count > 0:
+    average_payload_mass = total_payload_mass / count
+    print(f"Average Payload Mass for F9 v1.1: {average_payload_mass:.2f} kg")
+else:
+    print("No payload data available for booster version F9 v1.1.")
+
+
+                        Task5:  List the date when the first succesful landing outcome in ground pad was acheived.
+
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Find the first successful ground pad landing
+first_successful_landing = None
+for launch in data:
+    if launch.get("success") and launch.get("landpad"):
+        landpad_id = launch.get("landpad")
+        if landpad_id and "ground" in landpad_id.lower():  # Check for ground pad
+            first_successful_landing = launch
+            break  # Stop after finding the first successful one
+
+# Step 3: Display the result
+if first_successful_landing:
+    print(f"First successful ground pad landing:")
+    print(f"Date (UTC): {first_successful_landing.get('date_utc')}")
+else:
+    print("No successful ground pad landings found.")
+first_successful_landing
+2015-12-22
+
+                    Task 6:   List the names of the boosters which have success in drone ship and have payload mass greater than 4000 but less than 6000
+
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Filter launches with success on drone ship and payload mass criteria
+boosters = []
+for launch in data:
+    if launch.get("success") and launch.get("landpad") and "drone" in launch.get("landpad").lower():
+        payloads = launch.get("payloads", [])
+        for payload_id in payloads:
+            # Fetch payload details
+            payload_url = f"https://api.spacexdata.com/v4/payloads/{payload_id}"
+            payload_response = requests.get(payload_url)
+            if payload_response.status_code == 200:
+                payload_data = payload_response.json()
+                mass = payload_data.get("mass_kg", 0)
+                if 4000 < mass < 6000:  # Check payload mass criteria
+                    boosters.append(launch.get("rocket"))
+
+# Step 3: Display unique booster names
+print("Boosters with successful drone ship landings and payload mass between 4000 and 6000 kg:")
+for booster in set(boosters):  # Use set to ensure uniqueness
+    print(booster)
+
+booster_version
+F9 FT B1022
+F9 FT B1026
+F9 FT B1021.2
+F9 FT B1031.2
+
+                                Task 7
+              List the total number of successful and failure mission outcomes
+
+
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Count successful and failed missions
+success_count = 0
+failure_count = 0
+
+for launch in data:
+    if launch.get("success") is True:
+        success_count += 1
+    elif launch.get("success") is False:
+        failure_count += 1
+
+# Step 3: Display the results
+print(f"Total Successful Missions: {success_count}")
+print(f"Total Failed Missions: {failure_count}")
+
+Total Successful Missions: 181
+Total Failed Missions: 5
+
+Task 7
+List the total number of successful and failure mission outcomes
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Create a dictionary to store booster versions and their payload masses
+booster_payloads = {}
+
+for launch in data:
+    rocket_id = launch.get("rocket")
+    if rocket_id:
+        # Fetch rocket details
+        rocket_url = f"https://api.spacexdata.com/v4/rockets/{rocket_id}"
+        rocket_response = requests.get(rocket_url)
+        if rocket_response.status_code == 200:
+            rocket_data = rocket_response.json()
+            booster_version = rocket_data.get("name")
+
+            # Calculate total payload mass for this launch
+            payloads = launch.get("payloads", [])
+            total_mass = 0
+            for payload_id in payloads:
+                payload_url = f"https://api.spacexdata.com/v4/payloads/{payload_id}"
+                payload_response = requests.get(payload_url)
+                if payload_response.status_code == 200:
+                    payload_data = payload_response.json()
+                    total_mass += payload_data.get("mass_kg", 0)
+
+            # Store the maximum payload mass for each booster version
+            if booster_version in booster_payloads:
+                booster_payloads[booster_version] = max(booster_payloads[booster_version], total_mass)
+            else:
+                booster_payloads[booster_version] = total_mass
+
+# Step 3: Find the maximum payload mass
+max_payload_mass = max(booster_payloads.values())
+
+# Step 4: List booster versions with the maximum payload mass
+print("Booster versions with the maximum payload mass:")
+for booster, mass in booster_payloads.items():
+    if mass == max_payload_mass:
+        print(f"{booster} with payload mass: {mass} kg)
+
+
+booster_version
+F9 B5 B1048.4
+F9 B5 B1049.4
+F9 B5 B1051.3
+F9 B5 B1056.4
+F9 B5 B1048.5
+F9 B5 B1051.4
+F9 B5 B1049.5
+F9 B5 B1060.2
+F9 B5 B1058.3
+F9 B5 B1051.6
+F9 B5 B1060.3
+F9 B5 B1049.7 
+
+                   Task 8
+List the names of the booster_versions which have carried the maximum payload mass. Use a subquery
+
+import requests
+
+# Step 1: Fetch SpaceX API data
+url = "https://api.spacexdata.com/v4/launches"
+response = requests.get(url)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Data fetched successfully!")
+else:
+    print("Failed to fetch data:", response.status_code)
+    exit()
+
+# Step 2: Filter for failed drone ship landings in 2015
+failed_landings = []
+for launch in data:
+    if launch.get("date_utc") and launch.get("success") is False and launch.get("landpad"):
+        # Check if the landing was on a drone ship and in 2015
+        if "drone" in launch.get("landpad").lower() and "2015" in launch.get("date_utc"):
+            # Fetch rocket details
+            rocket_id = launch.get("rocket")
+            rocket_url = f"https://api.spacexdata.com/v4/rockets/{rocket_id}"
+            rocket_response = requests.get(rocket_url)
+            if rocket_response.status_code == 200:
+                rocket_data = rocket_response.json()
+                booster_version = rocket_data.get("name")
+
+                # Append relevant details
+                failed_landings.append({
+                    "booster_version": booster_version,
+                    "launch_site": launch.get("launchpad"),
+                    "date": launch.get("date_utc")
+                })
+
+# Step 3: Display the results
+print("Failed Drone Ship Landings in 2015:")
+for landing in failed_landings:
+    print(f"Booster Version: {landing['booster_version']}, Launch Site: {landing['launch_site']}, Date: {landing['date']}")
+
+                            Task 9
+              List the failed landing_outcomes in drone ship, their booster versions, and launch site names for the in year 2015
+
+import sqlite3
+
+# Step 1: Connect to the SQLite Database
+connection = sqlite3.connect("SPACEXDATASET.db")  # Creates or connects to the database
+cursor = connection.cursor()
+
+# Step 2: Create the Table if It Does Not Exist
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS SPACEXDATASET (
+    date TEXT,
+    booster_version TEXT,
+    launch_site TEXT,
+    landing__outcome TEXT
+)
+""")
+print("Table SPACEXDATASET created (or already exists).")
+
+# Step 3: Insert Sample Data into the Table
+# Delete existing data first for clean re-run (optional)
+cursor.execute("DELETE FROM SPACEXDATASET")
+connection.commit()
+
+# Insert some example rows (replace this with your actual data)
+sample_data = [
+    ('2015-01-10', 'F9 v1.1', 'Cape Canaveral', 'Failure (drone ship)'),
+    ('2015-04-14', 'F9 v1.1', 'Cape Canaveral', 'Failure (drone ship)'),
+    ('2015-06-28', 'F9 v1.1', 'Cape Canaveral', 'Failure (drone ship)'),
+    ('2016-12-14', 'F9 FT', 'Cape Canaveral', 'Success (drone ship)'),
+    ('2017-01-14', 'F9 FT', 'Vandenberg', 'Success (drone ship)'),
+]
+cursor.executemany("""
+INSERT INTO SPACEXDATASET (date, booster_version, launch_site, landing__outcome)
+VALUES (?, ?, ?, ?)
+""", sample_data)
+connection.commit()
+print("Sample data inserted into SPACEXDATASET.")
+
+# Step 4: Execute the Query
+query = """
+SELECT strftime('%m', date) AS month, date, booster_version, launch_site, landing__outcome
+FROM SPACEXDATASET
+WHERE landing__outcome = 'Failure (drone ship)' AND strftime('%Y', date) = '2015';
+"""
+cursor.execute(query)
+results = cursor.fetchall()
+
+# Step 5: Display the Results
+if results:
+    print(f"{'Month':<10}{'Date':<15}{'Booster Version':<20}{'Launch Site':<25}{'Landing Outcome':<25}")
+    print("-" * 90)
+    for row in results:
+        month, date, booster_version, launch_site, landing_outcome = row
+        print(f"{month:<10}{date:<15}{booster_version:<20}{launch_site:<25}{landing_outcome:<25}")
+else:
+    print("No matching records found for failed drone ship landings in 2015.")
+
+# Step 6: Close the Database Connection
+connection.close()
+
+01        2015-01-10     F9 v1.1             Cape Canaveral           Failure (drone ship)     
+04        2015-04-14     F9 v1.1             Cape Canaveral           Failure (drone ship)     
+06        2015-06-28     F9 v1.1             Cape Canaveral           Failure (drone ship)
+
+                       Task 10
+               Rank the count of landing outcomes (such as Failure (drone ship) or Success (ground pad)) between the date 2010-06-04 and 2017-03-20, in descending order
+
+import sqlite3
+
+# Step 1: Connect to the SQLite Database
+connection = sqlite3.connect("SPACEXDATASET.db")  # Replace with your database file name
+cursor = connection.cursor()
+
+# Step 2: Create the Table if It Does Not Exist
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS SPACEXDATASET (
+    date TEXT,
+    landing_outcome TEXT
+)
+""")
+print("Table SPACEXDATASET created (or already exists).")
+
+# Step 3: Insert Sample Data into the Table
+# Delete existing data for clean re-run (optional)
+cursor.execute("DELETE FROM SPACEXDATASET")
+connection.commit()
+
+# Insert sample data (replace this with actual data)
+sample_data = [
+    ('2010-06-04', 'Failure (drone ship)'),
+    ('2015-01-10', 'Failure (drone ship)'),
+    ('2015-04-14', 'Success (ground pad)'),
+    ('2015-06-28', 'Failure (parachute)'),
+    ('2016-12-14', 'Success (drone ship)'),
+    ('2017-03-20', 'Controlled (ocean)'),
+    ('2015-06-28', 'Failure (drone ship)'),
+    ('2016-12-14', 'Success (ground pad)'),
+    ('2017-01-14', 'Success (drone ship)'),
+    ('2015-04-14', 'Failure (drone ship)'),
+]
+cursor.executemany("""
+INSERT INTO SPACEXDATASET (date, landing_outcome)
+VALUES (?, ?)
+""", sample_data)
+connection.commit()
+print("Sample data inserted into SPACEXDATASET.")
+
+# Step 4: Execute the Query to Rank Landing Outcomes
+query = """
+SELECT landing_outcome, COUNT(landing_outcome) AS count_outcomes
+FROM SPACEXDATASET
+WHERE date BETWEEN '2010-06-04' AND '2017-03-20'
+GROUP BY landing_outcome
+ORDER BY count_outcomes DESC;
+"""
+cursor.execute(query)
+results = cursor.fetchall()
+
+# Step 5: Display the Results
+if results:
+    print(f"{'Landing Outcome':<25}{'Count Outcomes':<15}")
+    print("-" * 40)
+    for row in results:
+        landing_outcome, count_outcomes = row
+        print(f"{landing_outcome:<25}{count_outcomes:<15}")
+else:
+    print("No matching records found.")
+
+# Step 6: Close the Database Connection
+connection.close()
+
+landing__outcome	count_outcomes
+No attempt	10
+Failure (drone ship)	5
+Success (drone ship)	5
+Controlled (ocean)	3
+Success (ground pad)	3
+Failure (parachute)	2
+Uncontrolled (ocean)	2
+Precluded (drone ship)	1
+
+
+
+
+
+
+                              
