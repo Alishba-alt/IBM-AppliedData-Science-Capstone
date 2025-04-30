@@ -1,0 +1,152 @@
+                                  Task 1: Mark all launch sites on a map
+
+import folium
+import pandas as pd
+
+# Example DataFrame containing launch site coordinates
+data = {
+    'Launch Site': ['Cape Canaveral', 'Vandenberg AFB', 'Kennedy Space Center', 'Boca Chica'],
+    'Latitude': [28.3922, 34.6328, 28.5721, 25.9972],
+    'Longitude': [-80.6077, -120.6108, -80.6480, -97.1568]
+}
+
+launch_sites_df = pd.DataFrame(data)
+
+# Create a base map
+m = folium.Map(location=[30, -100], zoom_start=4)
+
+# Add markers for each launch site
+for index, row in launch_sites_df.iterrows():
+    folium.Marker(
+        location=[row['Latitude'], row['Longitude']],
+        popup=row['Launch Site'],
+        icon=folium.Icon(color='blue', icon='rocket')
+    ).add_to(m)
+
+# Save and display the map
+m.save("launch_sites_map.html")
+print("Map has been saved as 'launch_sites_map.html'")
+
+
+                       Task 2: Mark the success/failed launches for each site on the map
+
+import folium
+import pandas as pd
+
+# Example data for launch sites and outcomes
+data = {
+    'Launch Site': ['Cape Canaveral', 'Cape Canaveral', 'Vandenberg AFB', 'Boca Chica'],
+    'Latitude': [28.3922, 28.3922, 34.6328, 25.9972],
+    'Longitude': [-80.6077, -80.6077, -120.6108, -97.1568],
+    'Launch Outcome': ['Success', 'Failure', 'Success', 'Failure']
+}
+launch_data = pd.DataFrame(data)
+
+# Create the map
+m = folium.Map(location=[30, -100], zoom_start=4)
+
+# Add markers with outcome-based colors
+for index, row in launch_data.iterrows():
+    color = 'green' if row['Launch Outcome'] == 'Success' else 'red'
+    folium.Marker(
+        location=[row['Latitude'], row['Longitude']],
+        popup=f"{row['Launch Site']}: {row['Launch Outcome']}",
+        icon=folium.Icon(color=color, icon='rocket')
+    ).add_to(m)
+
+# Save the map
+m.save("launch_sites_with_outcomes.html")
+print("Map has been saved as 'launch_sites_with_outcomes.html'")
+
+               TASK 3: Calculate the distances between a launch site to its proximities
+
+import folium
+import pandas as pd
+import math
+
+# Example data for launch sites and outcomes
+launch_sites_data = {
+    'Launch Site': ['Cape Canaveral', 'Boca Chica'],
+    'Latitude': [28.3922, 25.9972],
+    'Longitude': [-80.6077, -97.1568]
+}
+
+proximity_points_data = {
+    'Proximity Name': ['Nearby City 1', 'Nearby City 2', 'Nearby City 3'],
+    'Latitude': [29.0000, 25.8000, 27.5000],
+    'Longitude': [-81.0000, -97.5000, -80.8000]
+}
+
+launch_outcomes_data = {
+    'Launch Site': ['Cape Canaveral', 'Cape Canaveral', 'Boca Chica'],
+    'Latitude': [28.3922, 28.3922, 25.9972],
+    'Longitude': [-80.6077, -80.6077, -97.1568],
+    'Launch Outcome': ['Success', 'Failure', 'Failure']
+}
+
+# Create DataFrames
+launch_sites = pd.DataFrame(launch_sites_data)
+proximity_points = pd.DataFrame(proximity_points_data)
+launch_outcomes = pd.DataFrame(launch_outcomes_data)
+
+# Function to calculate Haversine distance
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371  # Earth radius in kilometers
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    return R * c
+
+# Calculate distances for each launch site to each proximity point
+distances = []
+for i, launch_row in launch_sites.iterrows():
+    for j, prox_row in proximity_points.iterrows():
+        distance = haversine(
+            launch_row['Latitude'], launch_row['Longitude'],
+            prox_row['Latitude'], prox_row['Longitude']
+        )
+        distances.append({
+            'Launch Site': launch_row['Launch Site'],
+            'Proximity Name': prox_row['Proximity Name'],
+            'Distance (km)': round(distance, 2)
+        })
+
+# Create a distance DataFrame
+distance_df = pd.DataFrame(distances)
+
+# Create the map
+m = folium.Map(location=[30, -100], zoom_start=4)
+
+# Add markers for launch sites
+for index, row in launch_outcomes.iterrows():
+    color = 'green' if row['Launch Outcome'] == 'Success' else 'red'
+    folium.Marker(
+        location=[row['Latitude'], row['Longitude']],
+        popup=f"{row['Launch Site']}: {row['Launch Outcome']}",
+        icon=folium.Icon(color=color, icon='rocket')
+    ).add_to(m)
+
+# Add markers for proximity points
+for index, row in proximity_points.iterrows():
+    folium.Marker(
+        location=[row['Latitude'], row['Longitude']],
+        popup=row['Proximity Name'],
+        icon=folium.Icon(color='blue', icon='info-sign')
+    ).add_to(m)
+
+# Save and display the map
+m.save("launch_sites_with_distances.html")
+print("Map has been saved as 'launch_sites_with_distances.html'")
+print("Distances between launch sites and proximity points:")
+print(distance_df)
+
+Distances between launch sites and proximity points:
+      Launch Site Proximity Name  Distance (km)
+0  Cape Canaveral  Nearby City 1          77.66
+1  Cape Canaveral  Nearby City 2        1695.34
+2  Cape Canaveral  Nearby City 3         100.99
+3      Boca Chica  Nearby City 1        1626.75
+4      Boca Chica  Nearby City 2          40.73
+5      Boca Chica  Nearby City 3        1631.54
