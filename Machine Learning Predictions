@@ -1,0 +1,233 @@
+                       TASK 1
+Create a NumPy array from the column Class in data, by applying the method to_numpy() then assign it to the variable Y,make sure the output is a Pandas series (only one bracket df['name of column']).
+
+import pandas as pd
+
+# Define the data
+data = [0, 0, 0, 0, 0, 0, 1, 1, 0, 0]
+
+# Create a Pandas Series
+series = pd.Series(data)
+
+# Display the Series
+print(series)
+
+0    0      
+1    0      
+2    0      
+3    0      
+4    0      
+5    0      
+6    1      
+7    1      
+8    0      
+9    0      
+dtype: int64
+
+                     TASK 2
+Standardize the data in X then reassign it to the variable X using the transform provided below.
+
+# students get this 
+transform = preprocessing.StandardScaler()
+X = transform.fit(X).transform(X)
+
+
+                         TASK 3
+Use the function train_test_split to split the data X and Y into training and test data. Set the parameter test_size to 0.2 and random_state to 2. The training data and test data should be assigned to the following labels.
+
+X_train, X_test, Y_train, Y_test
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=2)
+we can see we only have 18 test samples.
+
+Y_test.shape
+(18,)
+
+                          TASK 4
+Create a logistic regression object using then create a GridSearchCV object logreg_cv with cv = 10. Fit the object to find the best parameters from the dictionary parameters.
+
+parameters ={'C':[0.01,0.1,1],
+             'penalty':['l2'],
+             'solver':['lbfgs']}
+parameters ={"C":[0.01,0.1,1],'penalty':['l2'], 'solver':['lbfgs']}# l1 lasso l2 ridge
+lr=LogisticRegression()
+
+logreg_cv=GridSearchCV(lr, parameters, cv=10)
+logreg_cv.fit(X_train, Y_train)
+GridSearchCV(cv=10, estimator=LogisticRegression(),
+             param_grid={'C': [0.01, 0.1, 1], 'penalty': ['l2'],
+                         'solver': ['lbfgs']})
+We output the GridSearchCV object for logistic regression. We display the best parameters using the data attribute best_params_ and the accuracy on the validation data using the data attribute best_score_.
+
+print("tuned hpyerparameters :(best parameters) ", logreg_cv.best_params_)
+print("accuracy :",logreg_cv.best_score_)
+
+
+                               TASK 5
+Calculate the accuracy on the test data using the method score:
+
+logreg_accuracy = logreg_cv.score(X_test, Y_test)
+logreg_accuracy
+0.8333333333333334
+Lets look at the confusion matrix:
+
+logreg_yhat = logreg_cv.predict(X_test)
+plot_confusion_matrix(Y_test, logreg_yhat)
+
+
+                     TASK 6
+Create a support vector machine object then create a GridSearchCV object svm_cv with cv - 10. Fit the object to find the best parameters from the dictionary parameters.
+
+parameters = {'kernel':('linear', 'rbf','poly','rbf', 'sigmoid'),
+              'C': np.logspace(-3, 3, 5),
+              'gamma':np.logspace(-3, 3, 5)}
+svm = SVC()
+svm_cv = GridSearchCV(svm, parameters, cv=10)
+svm_cv.fit(X_train, Y_train)
+GridSearchCV(cv=10, estimator=SVC(),
+             param_grid={'C': array([1.00000000e-03, 3.16227766e-02, 1.00000000e+00, 3.16227766e+01,
+       1.00000000e+03]),
+                         'gamma': array([1.00000000e-03, 3.16227766e-02, 1.00000000e+00, 3.16227766e+01,
+       1.00000000e+03]),
+                         'kernel': ('linear', 'rbf', 'poly', 'rbf', 'sigmoid')})
+print("tuned hpyerparameters :(best parameters) ", svm_cv.best_params_)
+print("accuracy :", svm_cv.best_score_)
+
+
+                 TASK 7
+Calculate the accuracy on the test data using the method score:
+
+svm_accuracy = svm_cv.score(X_test, Y_test)
+svm_accuracy
+0.8333333333333334
+We can plot the confusion matrix
+
+svm_yhat = svm_cv.predict(X_test)
+plot_confusion_matrix(Y_test, svm_yhat)
+
+
+                       TASK 8
+Create a decision tree classifier object then create a GridSearchCV object tree_cv with cv = 10. Fit the object to find the best parameters from the dictionary parameters.
+
+parameters = {'criterion': ['gini', 'entropy'],
+     'splitter': ['best', 'random'],
+     'max_depth': [2*n for n in range(1,10)],
+     'max_features': ['auto', 'sqrt'],
+     'min_samples_leaf': [1, 2, 4],
+     'min_samples_split': [2, 5, 10]}
+
+tree = DecisionTreeClassifier()
+tree_cv = GridSearchCV(tree, parameters, cv=10)
+tree_cv.fit(X_train, Y_train)
+GridSearchCV(cv=10, estimator=DecisionTreeClassifier(),
+             param_grid={'criterion': ['gini', 'entropy'],
+                         'max_depth': [2, 4, 6, 8, 10, 12, 14, 16, 18],
+                         'max_features': ['auto', 'sqrt'],
+                         'min_samples_leaf': [1, 2, 4],
+                         'min_samples_split': [2, 5, 10],
+                         'splitter': ['best', 'random']})
+print("tuned hpyerparameters :(best parameters) ", tree_cv.best_params_)
+print("accuracy :", tree_cv.best_score_)
+tuned hpyerparameters :(best parameters)  {'criterion': 'entropy', 'max_depth': 6, 'max_features': 'auto', 'min_samples_leaf': 1, 'min_samples_split': 5, 'splitter': 'random'}
+accuracy : 0.8892857142857145
+
+
+                           TASK 9
+Calculate the accuracy of tree_cv on the test data using the method score:
+
+tree_accuracy = tree_cv.score(X_test, Y_test)
+tree_accuracy
+0.8333333333333334
+We can plot the confusion matrix
+
+tree_yhat = svm_cv.predict(X_test)
+plot_confusion_matrix(Y_test, tree_yhat)
+
+
+                             TASK 10
+Create a k nearest neighbors object then create a GridSearchCV object knn_cv with cv = 10. Fit the object to find the best parameters from the dictionary parameters.
+
+parameters = {'n_neighbors': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+              'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
+              'p': [1,2]}
+
+KNN = KNeighborsClassifier()
+knn_cv = GridSearchCV(KNN, parameters, cv=10)
+knn_cv.fit(X_train, Y_train)
+GridSearchCV(cv=10, estimator=KNeighborsClassifier(),
+             param_grid={'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
+                         'n_neighbors': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                         'p': [1, 2]})
+print("tuned hpyerparameters :(best parameters) ", knn_cv.best_params_)
+print("accuracy :", knn_cv.best_score_)
+tuned hpyerparameters :(best parameters)  {'algorithm': 'auto', 'n_neighbors': 10, 'p': 1}
+accuracy : 0.8482142857142858
+
+
+                    TASK 11
+Calculate the accuracy of tree_cv on the test data using the method score:
+
+knn_accuracy = knn_cv.score(X_test, Y_test)
+knn_accuracy
+0.8333333333333334
+We can plot the confusion matrix
+
+knn_yhat = knn_cv.predict(X_test)
+plot_confusion_matrix(Y_test, knn_yhat)
+
+
+TASK 12
+Find the method performs best: 
+from sklearn.metrics import jaccard_score, f1_score
+
+# Examining the scores from Test sets
+jaccard_scores = [
+                  jaccard_score(Y_test, logreg_yhat, average='binary'),
+                  jaccard_score(Y_test, svm_yhat, average='binary'),
+                  jaccard_score(Y_test, tree_yhat, average='binary'),
+                  jaccard_score(Y_test, knn_yhat, average='binary'),
+                 ]
+
+f1_scores = [
+             f1_score(Y_test, logreg_yhat, average='binary'),
+             f1_score(Y_test, svm_yhat, average='binary'),
+             f1_score(Y_test, tree_yhat, average='binary'),
+             f1_score(Y_test, knn_yhat, average='binary'),
+            ]
+
+accuracy = [logreg_accuracy, svm_accuracy, tree_accuracy, knn_accuracy]
+
+scores = pd.DataFrame(np.array([jaccard_scores, f1_scores, accuracy]), index=['Jaccard_Score', 'F1_Score', 'Accuracy'] , columns=['LogReg', 'SVM', 'Tree', 'KNN'])
+scores
+LogReg	SVM	Tree	KNN
+Jaccard_Score	0.800000	0.800000	0.800000	0.800000
+F1_Score	0.888889	0.888889	0.888889	0.888889
+Accuracy	0.833333	0.833333	0.833333	0.833333
+# Examining the scores from the whole Dataset
+jaccard_scores = [
+                  jaccard_score(Y, logreg_cv.predict(X), average='binary'),
+                  jaccard_score(Y, svm_cv.predict(X), average='binary'),
+                  jaccard_score(Y, tree_cv.predict(X), average='binary'),
+                  jaccard_score(Y, knn_cv.predict(X), average='binary'),
+                 ]
+
+f1_scores = [
+             f1_score(Y, logreg_cv.predict(X), average='binary'),
+             f1_score(Y, svm_cv.predict(X), average='binary'),
+             f1_score(Y, tree_cv.predict(X), average='binary'),
+             f1_score(Y, knn_cv.predict(X), average='binary'),
+            ]
+
+accuracy = [logreg_cv.score(X, Y), svm_cv.score(X, Y), tree_cv.score(X, Y), knn_cv.score(X, Y)]
+
+scores = pd.DataFrame(np.array([jaccard_scores, f1_scores, accuracy]),
+                      index=['Jaccard_Score', 'F1_Score', 'Accuracy'],
+                      columns=['LogReg', 'SVM', 'Tree', 'KNN'])
+scores
+LogReg	SVM	Tree	KNN
+Jaccard_Score	0.833333	0.845070	0.882353	0.819444
+F1_Score	0.909091	0.916031	0.937500	0.900763
+Accuracy	0.866667	0.877778	0.911111	0.855556
+
+
+                         
